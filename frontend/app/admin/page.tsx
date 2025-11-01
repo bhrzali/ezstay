@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import axios from 'axios'
+import Sidebar from '../components/Sidebar'
 
 const getApiUrl = () => {
   // In browser, default to localhost:8000 for development
@@ -84,6 +84,7 @@ export default function AdminPage() {
     try {
       const token = localStorage.getItem('token')
       if (!token) {
+        setLoading(false)
         router.push('/login')
         return
       }
@@ -92,15 +93,16 @@ export default function AdminPage() {
         headers: { Authorization: `Bearer ${token}` }
       })
       if (!response.data.is_admin) {
+        setLoading(false)
         router.push('/')
         return
       }
       setUser(response.data)
+      setLoading(false)
     } catch (error) {
       localStorage.removeItem('token')
-      router.push('/login')
-    } finally {
       setLoading(false)
+      router.push('/login')
     }
   }
 
@@ -371,27 +373,11 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <Link href="/" className="text-2xl font-bold text-blue-600">
-              EazyStay
-            </Link>
-            <Link
-              href="/"
-              className="px-4 py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              <span>Back to Home</span>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen">
+      <Sidebar user={user} />
+      
+      <main className="lg:ml-80 overflow-x-hidden bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-md p-6">
           <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
@@ -847,10 +833,10 @@ export default function AdminPage() {
             </div>
           )}
         </div>
-      </main>
+        </div>
 
-      {/* Booking Details Modal */}
-      {showBookingModal && selectedBooking && (
+        {/* Booking Details Modal */}
+        {showBookingModal && selectedBooking && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowBookingModal(false)}>
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
@@ -960,7 +946,8 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
-      )}
+        )}
+      </main>
     </div>
   )
 }
