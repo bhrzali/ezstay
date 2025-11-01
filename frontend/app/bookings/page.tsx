@@ -79,7 +79,7 @@ export default function BookingsPage() {
       setBookings(response.data)
 
       // Fetch apartment details for each booking
-      const apartmentIds = [...new Set(response.data.map((b: Booking) => b.apartment_id))]
+      const apartmentIds: number[] = Array.from(new Set<number>(response.data.map((b: Booking) => b.apartment_id)))
       const apartmentPromises = apartmentIds.map(async (id: number) => {
         try {
           const aptResponse = await axios.get(`${apiUrl}/api/apartments/${id}`)
