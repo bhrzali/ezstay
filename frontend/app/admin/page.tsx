@@ -67,6 +67,13 @@ export default function AdminPage() {
   const [success, setSuccess] = useState('')
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [showBookingModal, setShowBookingModal] = useState(false)
+  const [searchParams, setSearchParams] = useState({
+    apartmentSearchText: '',
+    bookingSearchText: '',
+    bookingStatus: '',
+    paymentStatus: '',
+    activeTab: 'apartments' as 'apartments' | 'bookings',
+  })
 
   useEffect(() => {
     checkAuth()
@@ -79,6 +86,11 @@ export default function AdminPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
+
+  // Update searchParams.activeTab when admin tab changes
+  useEffect(() => {
+    setSearchParams(prev => ({ ...prev, activeTab }))
+  }, [activeTab])
 
   const checkAuth = async () => {
     try {
@@ -106,26 +118,56 @@ export default function AdminPage() {
     }
   }
 
-  const fetchApartments = async () => {
+  const fetchApartments = async (searchText?: string) => {
     try {
       const apiUrl = getApiUrl()
-      const response = await axios.get(`${apiUrl}/api/apartments/`)
+      const params: any = {}
+      if (searchText) {
+        params.search_text = searchText
+      }
+      const response = await axios.get(`${apiUrl}/api/apartments/`, { params })
       setApartments(response.data)
     } catch (error) {
       console.error('Error fetching apartments:', error)
     }
   }
 
-  const fetchBookings = async () => {
+  const fetchBookings = async (searchText?: string, bookingStatus?: string, paymentStatus?: string) => {
     try {
       const token = localStorage.getItem('token')
       const apiUrl = getApiUrl()
+      const params: any = {}
+      if (searchText) params.search_text = searchText
+      if (bookingStatus) params.booking_status = bookingStatus
+      if (paymentStatus) params.payment_status = paymentStatus
       const response = await axios.get(`${apiUrl}/api/admin/bookings/`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        params
       })
       setBookings(response.data)
     } catch (error) {
       console.error('Error fetching bookings:', error)
+    }
+  }
+
+  const handleSearch = (params: any) => {
+    setSearchParams(params)
+    
+    // Update activeTab if provided
+    if (params.activeTab) {
+      setActiveTab(params.activeTab)
+    }
+    
+    // Trigger search based on active tab (use params.activeTab if provided, else current activeTab)
+    const searchTab = params.activeTab || activeTab
+    if (searchTab === 'apartments') {
+      fetchApartments(params.apartmentSearchText)
+    } else if (searchTab === 'bookings') {
+      fetchBookings(
+        params.bookingSearchText,
+        params.bookingStatus || undefined,
+        params.paymentStatus || undefined
+      )
     }
   }
 
@@ -374,7 +416,11 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen">
-      <Sidebar user={user} />
+      <Sidebar 
+        user={user} 
+        onSearch={handleSearch}
+        searchParams={{...searchParams, activeTab}}
+      />
       
       <main className="lg:ml-80 bg-gray-50 min-h-screen">
         <div className="px-4 sm:px-6 lg:px-8 py-8">

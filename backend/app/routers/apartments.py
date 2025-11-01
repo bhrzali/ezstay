@@ -36,12 +36,13 @@ async def list_apartments(
     available_from: Optional[date] = Query(None),
     available_to: Optional[date] = Query(None),
     bedrooms: Optional[int] = Query(None),
+    search_text: Optional[str] = Query(None),
     skip: int = Query(0),
     limit: int = Query(100),
     db: Session = Depends(get_db)
 ):
     apartment_service = ApartmentService(db)
-    if any([city, min_price, max_price, available_from, available_to, bedrooms]):
+    if any([city, min_price, max_price, available_from, available_to, bedrooms, search_text]):
         apartments = apartment_service.search_apartments(
             city=city,
             min_price=min_price,
@@ -49,6 +50,7 @@ async def list_apartments(
             available_from=available_from,
             available_to=available_to,
             bedrooms=bedrooms,
+            search_text=search_text,
             skip=skip,
             limit=limit
         )

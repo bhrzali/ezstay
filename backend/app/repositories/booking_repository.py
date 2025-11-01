@@ -23,6 +23,46 @@ class BookingRepository:
     def get_all(self, skip: int = 0, limit: int = 100) -> List[Booking]:
         return self.db.query(Booking).order_by(Booking.created_at.desc()).offset(skip).limit(limit).all()
     
+    def search(
+        self,
+        search_text: Optional[str] = None,
+        booking_status: Optional[str] = None,
+        payment_status: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[Booking]:
+        from sqlalchemy import or_
+        from app.models.user import User
+        from app.models.apartment import Apartment
+        
+        query = self.db.query(Booking).join(Apartment).join(User)
+        
+        if search_text:
+            search_pattern = f"%{search_text}%"
+            query = query.filter(
+                or_(
+                    Apartment.title.ilike(search_pattern),
+                    User.username.ilike(search_pattern),
+                    Booking.payment_reference.ilike(search_pattern)
+                )
+            )
+        
+        if booking_status:
+            try:
+                status_enum = BookingStatus[booking_status.lower()]
+                query = query.filter(Booking.booking_status == status_enum)
+            except KeyError:
+                pass  # Invalid status, ignore
+        
+        if payment_status:
+            try:
+                payment_enum = PaymentStatus[payment_status.lower()]
+                query = query.filter(Booking.payment_status == payment_enum)
+            except KeyError:
+                pass  # Invalid status, ignore
+        
+        return query.order_by(Booking.created_at.desc()).offset(skip).limit(limit).all()
+    
     def get_by_apartment_id(self, apartment_id: int) -> List[Booking]:
         return self.db.query(Booking).filter(Booking.apartment_id == apartment_id).all()
     

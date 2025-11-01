@@ -13,15 +13,32 @@ interface SidebarProps {
     availableFrom?: string
     availableTo?: string
     bedrooms?: string
+    // Admin search params
+    apartmentSearchText?: string
+    bookingSearchText?: string
+    bookingStatus?: string
+    paymentStatus?: string
   }
+  searchMode?: 'apartments' | 'bookings' | 'both' // Admin can have both
 }
 
-export default function Sidebar({ user, onSearch, searchParams = {} }: SidebarProps) {
+export default function Sidebar({ user, onSearch, searchParams = {}, searchMode = 'apartments' }: SidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const isAdminPage = pathname === '/admin'
   const [isOpen, setIsOpen] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const navigatingRef = useRef(false)
+  const [activeTab, setActiveTab] = useState<'apartments' | 'bookings'>(
+    searchParams?.activeTab || 'apartments'
+  )
+  
+  // Sync activeTab when searchParams.activeTab changes (from admin page)
+  useEffect(() => {
+    if (searchParams?.activeTab) {
+      setActiveTab(searchParams.activeTab)
+    }
+  }, [searchParams?.activeTab])
   const [localSearchParams, setLocalSearchParams] = useState({
     city: searchParams?.city || '',
     minPrice: searchParams?.minPrice || '',
@@ -29,6 +46,10 @@ export default function Sidebar({ user, onSearch, searchParams = {} }: SidebarPr
     availableFrom: searchParams?.availableFrom || '',
     availableTo: searchParams?.availableTo || '',
     bedrooms: searchParams?.bedrooms || '',
+    apartmentSearchText: searchParams?.apartmentSearchText || '',
+    bookingSearchText: searchParams?.bookingSearchText || '',
+    bookingStatus: searchParams?.bookingStatus || '',
+    paymentStatus: searchParams?.paymentStatus || '',
   })
 
   // Memoize searchParams to prevent unnecessary re-renders
@@ -39,7 +60,16 @@ export default function Sidebar({ user, onSearch, searchParams = {} }: SidebarPr
     availableFrom: searchParams?.availableFrom || '',
     availableTo: searchParams?.availableTo || '',
     bedrooms: searchParams?.bedrooms || '',
-  }), [searchParams?.city, searchParams?.minPrice, searchParams?.maxPrice, searchParams?.availableFrom, searchParams?.availableTo, searchParams?.bedrooms])
+    apartmentSearchText: searchParams?.apartmentSearchText || '',
+    bookingSearchText: searchParams?.bookingSearchText || '',
+    bookingStatus: searchParams?.bookingStatus || '',
+    paymentStatus: searchParams?.paymentStatus || '',
+  }), [
+    searchParams?.city, searchParams?.minPrice, searchParams?.maxPrice,
+    searchParams?.availableFrom, searchParams?.availableTo, searchParams?.bedrooms,
+    searchParams?.apartmentSearchText, searchParams?.bookingSearchText,
+    searchParams?.bookingStatus, searchParams?.paymentStatus
+  ])
 
   // Sync local state when searchParams prop changes (only if values actually changed)
   useEffect(() => {
@@ -88,6 +118,10 @@ export default function Sidebar({ user, onSearch, searchParams = {} }: SidebarPr
       availableFrom: '',
       availableTo: '',
       bedrooms: '',
+      apartmentSearchText: '',
+      bookingSearchText: '',
+      bookingStatus: '',
+      paymentStatus: '',
     }
     setLocalSearchParams(cleared)
     if (onSearch) {
@@ -304,40 +338,108 @@ export default function Sidebar({ user, onSearch, searchParams = {} }: SidebarPr
         {onSearch && (
           <div className="p-4 border-t bg-gray-50">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Search Apartments</h3>
-              
-              {/* Basic Search */}
-              <div className="mb-3">
-                <input
-                  type="text"
-                  placeholder="Search by city..."
-                  value={localSearchParams.city}
-                  onChange={(e) => handleInputChange('city', e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+              {isAdminPage ? (
+                <>
+                  {/* Admin Search Tabs */}
+                  <div className="flex gap-2 mb-4 border-b border-gray-200">
+                    <button
+                      onClick={() => {
+                        setActiveTab('apartments')
+                        // Notify parent about tab change
+                        if (onSearch) {
+                          onSearch({ ...localSearchParams, activeTab: 'apartments' })
+                        }
+                      }}
+                      className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'apartments'
+                          ? 'border-blue-600 text-blue-600'
+                          : 'border-transparent text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      Apartments
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveTab('bookings')
+                        // Notify parent about tab change
+                        if (onSearch) {
+                          onSearch({ ...localSearchParams, activeTab: 'bookings' })
+                        }
+                      }}
+                      className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'bookings'
+                          ? 'border-blue-600 text-blue-600'
+                          : 'border-transparent text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      Bookings
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Search Apartments</h3>
+              )}
 
-              {/* Toggle Filters */}
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="w-full flex items-center justify-between px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors mb-3"
-              >
-                <span className="text-sm font-medium">
-                  {showFilters ? 'Hide' : 'Show'} Advanced Filters
-                </span>
-                <svg
-                  className={`w-4 h-4 transform transition-transform ${showFilters ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+              {/* Apartment Search (Home page or Admin apartments tab) */}
+              {(!isAdminPage || activeTab === 'apartments') && (
+                <div>
+                  {isAdminPage ? (
+                    /* Admin Apartment Text Search */
+                    <div className="mb-3">
+                      <label className="block text-xs font-medium text-gray-700 mb-2">
+                        Search Apartments
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Search by title, description, address, or city..."
+                          value={localSearchParams.apartmentSearchText}
+                          onChange={(e) => handleInputChange('apartmentSearchText', e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        />
+                        <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Home Page City Search */
+                    <div className="mb-3">
+                      <input
+                        type="text"
+                        placeholder="Search by city..."
+                        value={localSearchParams.city}
+                        onChange={(e) => handleInputChange('city', e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                  )}
 
-              {/* Advanced Filters */}
-              {showFilters && (
+                  {/* Only show advanced filters on home page, not admin */}
+                  {!isAdminPage && (
+                    <>
+                      {/* Toggle Filters */}
+                      <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="w-full flex items-center justify-between px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors mb-3"
+                      >
+                        <span className="text-sm font-medium">
+                          {showFilters ? 'Hide' : 'Show'} Advanced Filters
+                        </span>
+                        <svg
+                          className={`w-4 h-4 transform transition-transform ${showFilters ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      {/* Advanced Filters */}
+                      {showFilters && (
                 <div className="space-y-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -406,6 +508,68 @@ export default function Sidebar({ user, onSearch, searchParams = {} }: SidebarPr
                       min={localSearchParams.availableFrom || undefined}
                       className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
+                  </div>
+                </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Booking Search (Admin bookings tab) */}
+              {isAdminPage && activeTab === 'bookings' && (
+                <div>
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-gray-700 mb-2">
+                      Search Bookings
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search by apartment, user, or payment reference..."
+                        value={localSearchParams.bookingSearchText}
+                        onChange={(e) => handleInputChange('bookingSearchText', e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      />
+                      <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-gray-700 mb-2">
+                      Booking Status
+                    </label>
+                    <select
+                      value={localSearchParams.bookingStatus}
+                      onChange={(e) => handleInputChange('bookingStatus', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">All Statuses</option>
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="cancelled">Cancelled</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-gray-700 mb-2">
+                      Payment Status
+                    </label>
+                    <select
+                      value={localSearchParams.paymentStatus}
+                      onChange={(e) => handleInputChange('paymentStatus', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">All Payments</option>
+                      <option value="pending">Pending</option>
+                      <option value="completed">Completed</option>
+                      <option value="refunded">Refunded</option>
+                      <option value="failed">Failed</option>
+                    </select>
                   </div>
                 </div>
               )}

@@ -85,6 +85,22 @@ class BookingService:
     def get_all_bookings(self, skip: int = 0, limit: int = 100) -> List[Booking]:
         return self.repository.get_all(skip, limit)
     
+    def search_bookings(
+        self,
+        search_text: Optional[str] = None,
+        booking_status: Optional[str] = None,
+        payment_status: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[Booking]:
+        return self.repository.search(
+            search_text=search_text,
+            booking_status=booking_status,
+            payment_status=payment_status,
+            skip=skip,
+            limit=limit
+        )
+    
     def get_apartment_bookings(self, apartment_id: int) -> List[Booking]:
         return self.repository.get_by_apartment_id(apartment_id)
     

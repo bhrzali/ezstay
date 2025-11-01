@@ -173,15 +173,28 @@ async def delete_apartment_image(
 @router.get("/bookings/", response_model=List[dict])
 @router.get("/bookings", response_model=List[dict])
 async def get_all_bookings(
+    search_text: Optional[str] = Query(None),
+    booking_status: Optional[str] = Query(None),
+    payment_status: Optional[str] = Query(None),
     skip: int = Query(0),
     limit: int = Query(100),
     current_user = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ):
-    """Get all bookings (admin only)"""
+    """Get all bookings (admin only) with optional search"""
     from app.services.booking_service import BookingService
     booking_service = BookingService(db)
-    bookings = booking_service.get_all_bookings(skip=skip, limit=limit)
+    
+    if any([search_text, booking_status, payment_status]):
+        bookings = booking_service.search_bookings(
+            search_text=search_text,
+            booking_status=booking_status,
+            payment_status=payment_status,
+            skip=skip,
+            limit=limit
+        )
+    else:
+        bookings = booking_service.get_all_bookings(skip=skip, limit=limit)
     
     return [
         {

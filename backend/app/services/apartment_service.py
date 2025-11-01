@@ -25,6 +25,7 @@ class ApartmentService:
         available_from: Optional[date] = None,
         available_to: Optional[date] = None,
         bedrooms: Optional[int] = None,
+        search_text: Optional[str] = None,
         skip: int = 0,
         limit: int = 100
     ) -> List[Apartment]:
@@ -35,6 +36,7 @@ class ApartmentService:
             available_from=available_from,
             available_to=available_to,
             bedrooms=bedrooms,
+            search_text=search_text,
             skip=skip,
             limit=limit
         )

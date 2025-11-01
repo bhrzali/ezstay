@@ -28,11 +28,24 @@ class ApartmentRepository:
         available_from: Optional[date] = None,
         available_to: Optional[date] = None,
         bedrooms: Optional[int] = None,
+        search_text: Optional[str] = None,
         skip: int = 0,
         limit: int = 100
     ) -> List[Apartment]:
+        from sqlalchemy import or_
+        
         query = self.db.query(Apartment)
         
+        if search_text:
+            search_pattern = f"%{search_text}%"
+            query = query.filter(
+                or_(
+                    Apartment.title.ilike(search_pattern),
+                    Apartment.description.ilike(search_pattern),
+                    Apartment.address.ilike(search_pattern),
+                    Apartment.city.ilike(search_pattern)
+                )
+            )
         if city:
             query = query.filter(Apartment.city.ilike(f"%{city}%"))
         if min_price:
