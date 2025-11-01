@@ -18,6 +18,7 @@ interface SidebarProps {
     bookingSearchText?: string
     bookingStatus?: string
     paymentStatus?: string
+    activeTab?: 'apartments' | 'bookings'
   }
   searchMode?: 'apartments' | 'bookings' | 'both' // Admin can have both
 }

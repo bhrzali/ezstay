@@ -419,7 +419,7 @@ export default function AdminPage() {
       <Sidebar 
         user={user} 
         onSearch={handleSearch}
-        searchParams={{...searchParams, activeTab}}
+        searchParams={searchParams}
       />
       
       <main className="lg:ml-80 bg-gray-50 min-h-screen">
