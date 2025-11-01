@@ -71,6 +71,3 @@ docker-compose.override.yml
 *.sqlite
 *.sqlite3
 
-# Sample images (can be downloaded when needed)
-backend/app/scripts/sample_images/
-
