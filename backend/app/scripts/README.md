@@ -61,3 +61,6 @@ python -m app.scripts.download_sample_images
    - Apartments are skipped if they already exist (based on title)
    - Safe to run multiple times
 
+cd backend
+python app/scripts/download_sample_images.py
+python app/scripts/init_db.py

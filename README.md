@@ -79,40 +79,57 @@ npm install
 
 ### 5. Running the Application
 
-#### Development Mode (Separate servers)
+#### Option A: Local Development (Separate processes)
 
-**Backend:**
+**Backend (API Server):**
 ```bash
 cd backend
 uvicorn app.main:app --reload --port 8000
 ```
 
-**Frontend:**
+**Frontend (Development Server):**
 ```bash
 cd frontend
 npm run dev
 ```
 
-Access:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
+#### Option B: Docker Compose
 
-#### Production Mode (Frontend served from Backend)
+Run both database and backend in Docker:
 
-1. Build the frontend:
 ```bash
-cd frontend
-npm run build
+# Start database and backend
+docker-compose up -d
+
+# View logs
+docker-compose logs -f backend
+
+# Stop services
+docker-compose down
 ```
 
-2. Run the backend (it will serve the frontend):
+**Note:** The backend uses `postgres` as the database hostname (Docker service name), not `localhost`. This is configured automatically in docker-compose.yml.
+
+#### Option C: Docker Backend Only
+
+If you want to run only the backend in Docker (with local PostgreSQL):
+
 ```bash
 cd backend
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+docker build -t ezstay-backend .
+docker run -p 8000:8000 \
+  -e DATABASE_URL=postgresql://rentaplace_user:rentaplace_password@host.docker.internal:5432/rentaplace_db \
+  -e USERS=admin,user1,user2 \
+  -e ADMIN_PASSWORD=admin123 \
+  -e SECRET_KEY=your-secret-key \
+  ezstay-backend
 ```
 
-Access everything at: http://localhost:8000
+**Access:**
+- Frontend: http://localhost:3000 (when running locally)
+- Backend API: http://localhost:8000
+- API Docs: http://localhost:8000/docs (Swagger UI)
+- API Docs: http://localhost:8000/redoc (ReDoc)
 
 ## API Endpoints
 

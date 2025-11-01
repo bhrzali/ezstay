@@ -18,6 +18,27 @@ services:
       timeout: 5s
       retries: 5
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ezstay_backend
+    environment:
+      DATABASE_URL: postgresql://rentaplace_user:rentaplace_password@postgres:5432/rentaplace_db
+      USERS: ${USERS:-admin,user1,user2}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-this-in-production}
+      ALGORITHM: HS256
+      BACKEND_PORT: 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Note: Environment variables are set above, so .env file mount is not needed
+    # DATABASE_URL uses 'postgres' as hostname (Docker service name, not container name)
+    restart: unless-stopped
+
 volumes:
   postgres_data:
 
