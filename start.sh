@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# EazyStay Startup Script
+# EZStay Startup Script
 
-echo "Starting EazyStay..."
+echo "Starting EZStay..."
 
 # Check if .env exists
 if [ ! -f .env ]; then

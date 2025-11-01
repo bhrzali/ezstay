@@ -1,4 +1,4 @@
-# EazyStay - Apartment Rental Application
+# EZStay - Apartment Rental Application
 
 A full-stack application for finding and managing apartment rentals, built with Next.js (frontend) and FastAPI (backend).
 

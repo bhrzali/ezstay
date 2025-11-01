@@ -1,4 +1,4 @@
-# EazyStay Backend
+# EZStay Backend
 
 FastAPI backend for the apartment rental application.
 

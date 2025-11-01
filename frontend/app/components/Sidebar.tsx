@@ -197,7 +197,7 @@ export default function Sidebar({ user, onSearch, searchParams = {}, searchMode 
               }}
               className="text-2xl font-bold text-blue-600 hover:text-blue-800 cursor-pointer"
             >
-              EazyStay
+              EZStay
             </button>
             <button
               onClick={() => setIsOpen(false)}

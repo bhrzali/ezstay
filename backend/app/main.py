@@ -10,7 +10,7 @@ from app.routers import auth, apartments, admin, bookings
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="EazyStay API", version="1.0.0")
+app = FastAPI(title="EZStay API", version="1.0.0")
 
 # CORS middleware
 app.add_middleware(
@@ -38,9 +38,9 @@ async def root():
     """API root endpoint"""
     return HTMLResponse(content="""
     <html>
-        <head><title>EazyStay API</title></head>
+        <head><title>EZStay API</title></head>
         <body style="font-family: Arial; padding: 40px; text-align: center;">
-            <h1>EazyStay API</h1>
+            <h1>EZStay API</h1>
             <p>Backend API is running. Available endpoints:</p>
             <ul style="list-style: none; padding: 0;">
                 <li><a href="/api/docs">API Documentation (Swagger)</a></li>
