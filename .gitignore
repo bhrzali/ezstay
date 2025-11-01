@@ -24,7 +24,7 @@ pip-delete-this-directory.txt
 *.spec
 
 # Node / Next.js
-node_modules/
+# node_modules/
 .next/
 out/
 dist/
