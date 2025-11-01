@@ -4,8 +4,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // For serving from FastAPI backend
-  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
+  // Enable standalone output for Docker optimization
+  output: 'standalone',
 }
 
 module.exports = nextConfig
