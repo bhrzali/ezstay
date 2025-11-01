@@ -100,9 +100,20 @@ export default function Sidebar({ user, onSearch, searchParams = {}, searchMode 
     router.push(path)
   }, [router])
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    router.push('/')
+  const handleLogout = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    try {
+      localStorage.removeItem('token')
+      // Use window.location for more reliable navigation
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Fallback to router if window.location fails
+      router.push('/')
+    }
   }
 
   const handleSearch = () => {
@@ -324,7 +335,7 @@ export default function Sidebar({ user, onSearch, searchParams = {}, searchMode 
           {user && (
             <button
               type="button"
-              onClick={handleLogout}
+              onClick={(e) => handleLogout(e)}
               className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

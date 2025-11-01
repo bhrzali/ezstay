@@ -106,9 +106,20 @@ export default function ProfilePage() {
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    router.push('/')
+  const handleLogout = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    try {
+      localStorage.removeItem('token')
+      // Use window.location for more reliable navigation
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Fallback to router if window.location fails
+      router.push('/')
+    }
   }
 
   if (loading) {
