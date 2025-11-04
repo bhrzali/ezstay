@@ -4,14 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar'
-
-const getApiUrl = () => {
-  // In browser, default to localhost:8000 for development
-  if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-  }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-}
+import { getApiUrlSync } from '../utils/api-config'
 
 interface Apartment {
   id: number
@@ -100,7 +93,7 @@ export default function AdminPage() {
         router.push('/login')
         return
       }
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       const response = await axios.get(`${apiUrl}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -120,7 +113,7 @@ export default function AdminPage() {
 
   const fetchApartments = async (searchText?: string) => {
     try {
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       const params: any = {}
       if (searchText) {
         params.search_text = searchText
@@ -135,7 +128,7 @@ export default function AdminPage() {
   const fetchBookings = async (searchText?: string, bookingStatus?: string, paymentStatus?: string) => {
     try {
       const token = localStorage.getItem('token')
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       const params: any = {}
       if (searchText) params.search_text = searchText
       if (bookingStatus) params.booking_status = bookingStatus
@@ -174,7 +167,7 @@ export default function AdminPage() {
   const fetchBookingDetails = async (bookingId: number) => {
     try {
       const token = localStorage.getItem('token')
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       const response = await axios.get(`${apiUrl}/api/bookings/${bookingId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -192,7 +185,7 @@ export default function AdminPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       await axios.delete(`${apiUrl}/api/bookings/${bookingId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -227,7 +220,7 @@ export default function AdminPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
 
       if (editingApartment) {
         // Update existing apartment
@@ -315,7 +308,7 @@ export default function AdminPage() {
 
   const fetchApartmentImages = async (apartmentId: number) => {
     try {
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       const response = await axios.get(`${apiUrl}/api/apartments/${apartmentId}/images`)
       setExistingImages(response.data)
     } catch (error) {
@@ -350,7 +343,7 @@ export default function AdminPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       await axios.delete(`${apiUrl}/api/admin/apartments/${apartmentId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -390,7 +383,7 @@ export default function AdminPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       await axios.delete(`${apiUrl}/api/admin/apartments/${apartmentId}/images/${imageId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -402,7 +395,7 @@ export default function AdminPage() {
   }
 
   const getImageUrl = (apartmentId: number, imageId: number) => {
-    const apiUrl = getApiUrl()
+    const apiUrl = getApiUrlSync()
     return `${apiUrl}/api/apartments/${apartmentId}/images/${imageId}`
   }
 

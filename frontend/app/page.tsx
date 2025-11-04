@@ -4,14 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
 import Sidebar from './components/Sidebar'
-
-const getApiUrl = () => {
-  // In browser, default to localhost:8000 for development
-  if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-  }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-}
+import { getApiUrlSync } from './utils/api-config'
 
 interface Apartment {
   id: number
@@ -28,7 +21,7 @@ interface Apartment {
 
 function ApartmentCard({ apartment }: { apartment: Apartment }) {
   const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const apiUrl = getApiUrl()
+  const apiUrl = getApiUrlSync()
 
   useEffect(() => {
     // Fetch first image for the apartment
@@ -101,7 +94,7 @@ export default function Home() {
     try {
       const token = localStorage.getItem('token')
       if (token) {
-        const apiUrl = getApiUrl()
+        const apiUrl = getApiUrlSync()
         const response = await axios.get(`${apiUrl}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -123,7 +116,7 @@ export default function Home() {
       if (params.availableTo) apiParams.available_to = params.availableTo
       if (params.bedrooms) apiParams.bedrooms = parseInt(params.bedrooms)
       
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       const endpoint = `${apiUrl}/api/apartments/`
       
       const response = await axios.get(endpoint, { params: apiParams })

@@ -25,6 +25,9 @@ WORKDIR /app
 # Set environment to production
 ENV NODE_ENV=production
 
+# API_URL will be set at runtime by Azure Container Apps
+# No build-time environment variables needed
+
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs

@@ -4,13 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar'
-
-const getApiUrl = () => {
-  if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-  }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-}
+import { getApiUrlSync } from '../utils/api-config'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -36,7 +30,7 @@ export default function ProfilePage() {
         router.push('/login')
         return
       }
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       const response = await axios.get(`${apiUrl}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -78,7 +72,7 @@ export default function ProfilePage() {
     setUpdatingPassword(true)
     try {
       const token = localStorage.getItem('token')
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       await axios.put(
         `${apiUrl}/api/auth/me/password`,
         {

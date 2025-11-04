@@ -5,13 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar'
-
-const getApiUrl = () => {
-  if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-  }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-}
+import { getApiUrlSync } from '../utils/api-config'
 
 interface Booking {
   id: number
@@ -56,7 +50,7 @@ export default function BookingsPage() {
         router.push('/login')
         return
       }
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       const response = await axios.get(`${apiUrl}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -72,7 +66,7 @@ export default function BookingsPage() {
   const fetchBookings = async () => {
     try {
       const token = localStorage.getItem('token')
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       const response = await axios.get(`${apiUrl}/api/bookings/me/`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -108,7 +102,7 @@ export default function BookingsPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       await axios.delete(`${apiUrl}/api/bookings/${bookingId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })

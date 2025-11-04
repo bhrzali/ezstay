@@ -4,15 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import axios from 'axios'
-
-const getApiUrl = () => {
-  // In browser, use empty string if served from backend, otherwise use localhost:8000
-  if (typeof window !== 'undefined') {
-    // If NEXT_PUBLIC_API_URL is set, use it; otherwise default to localhost:8000 for dev
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-  }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-}
+import { getApiUrlSync } from '../utils/api-config'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -27,7 +19,7 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       console.log('API URL:', apiUrl)
       console.log('Attempting login for:', username)
       

@@ -5,14 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import axios from 'axios'
 import Sidebar from '../../components/Sidebar'
-
-const getApiUrl = () => {
-  // In browser, default to localhost:8000 for development
-  if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-  }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-}
+import { getApiUrlSync } from '../../utils/api-config'
 
 interface Apartment {
   id: number
@@ -61,7 +54,7 @@ export default function ApartmentDetailPage() {
     try {
       const token = localStorage.getItem('token')
       if (token) {
-        const apiUrl = getApiUrl()
+        const apiUrl = getApiUrlSync()
         const response = await axios.get(`${apiUrl}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -95,7 +88,7 @@ export default function ApartmentDetailPage() {
 
   const fetchApartment = async () => {
     try {
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       const response = await axios.get(`${apiUrl}/api/apartments/${params.id}`)
       setApartment(response.data)
     } catch (error) {
@@ -107,7 +100,7 @@ export default function ApartmentDetailPage() {
 
   const fetchImages = async () => {
     try {
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       const response = await axios.get(`${apiUrl}/api/apartments/${params.id}/images`)
       setImages(response.data)
     } catch (error) {
@@ -116,7 +109,7 @@ export default function ApartmentDetailPage() {
   }
 
   const getImageUrl = (imageId: number) => {
-    const apiUrl = getApiUrl()
+    const apiUrl = getApiUrlSync()
     return `${apiUrl}/api/apartments/${params.id}/images/${imageId}`
   }
 
@@ -132,7 +125,7 @@ export default function ApartmentDetailPage() {
 
     try {
       const token = localStorage.getItem('token')
-      const apiUrl = getApiUrl()
+      const apiUrl = getApiUrlSync()
       
       const response = await axios.post(
         `${apiUrl}/api/bookings/`,
